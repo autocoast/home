@@ -5,7 +5,7 @@
 ## Abstract
 This project leverages remote sensing data, particularly from Sentinel-2 and Landsat satellites, combined with deep learning techniques to identify and monitor coastlines. Our current focus is on the North and Baltic Seas, with goals to detect changes over the past 40 years and predict changes for the next 100 years. Key areas of our current work include active learning, pre-labelling, and developing a labelling tool for remote sensing data.
 
-## Motivational Images
+## Visual Motivation for Our Project
 <!-- [![IVideo labelling tool](https://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg)](https://www.youtube.com/watch?v=10l3KO1hJqc)
 [![IVideo labelling tool](https://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg)](https://youtu.be/ZnE89922YqQ) -->
 <!-- ![Northern part of the island Sylt](./example2.png)
