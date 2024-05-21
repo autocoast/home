@@ -11,10 +11,10 @@ This project leverages remote sensing data, particularly from Sentinel-2 and Lan
 <!-- ![Northern part of the island Sylt](./example2.png)
 ![Southern part of the island Sylt](./example1.png) -->
 
-<div style="display: flex; flex-direction: row; align-items: center; overflow-x: auto;">
-  <img src="example2.png" alt="Description" style="max-height: 200px; object-fit: contain; flex-shrink: 0;">
-  <img src="example1.png" alt="Description" style="max-height: 200px; object-fit: contain; flex-shrink: 0;">
-  <img src="sylt.gif" alt="Description" style="max-height: 200px; object-fit: contain; flex-shrink: 0;">
+<div style="display: flex;">
+  <img src="example2.png" alt="Description" style="max-height: 200px;">
+  <img src="example1.png" alt="Description" style="max-height: 200px;">
+  <img src="sylt.gif" alt="Description" style="max-height: 200px;">
 </div>
 
 
