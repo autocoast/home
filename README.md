@@ -11,9 +11,9 @@ This project leverages remote sensing data, particularly from Sentinel-2 and Lan
 <!-- ![Northern part of the island Sylt](./example2.png)
 ![Southern part of the island Sylt](./example1.png) -->
 <div style="display: flex">
-<img src="example2.png" alt="Description" height="300">
-<img src="example1.png" alt="Description" height="300">
-<img src="sylt.gif" alt="Description" height="300">
+<img src="example2.png" alt="Description" height="200">
+<img src="example1.png" alt="Description" height="200">
+<img src="sylt.gif" alt="Description" height="200">
 </div
 
 Here we see the German island of Sylt. On the left, we observe the southern part of the island. The dashed blue line represents the coastline as it was in 1984. Over the past 4 decades, approximately 1 km of this coastline has disappeared. Conversely, in the northern part of the island, the coastline has even expanded in certain areas during the same period. In the case of Sylt the changes are driven by a combination of human and natural drivers. Strong long-shore currents are eroding the southern part of the island and the sandy beaches on the west of Sylt. In order to keep the tourists the beaches are nourished regularly. The deposited sand in the west is then finding its way up to the north of the island. Our goal is to identify these changes on a larger scale (both coastline change and coastline type change), understand both human and natural causes, and predict future developments.
