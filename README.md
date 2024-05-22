@@ -22,7 +22,7 @@ Here we see the German island of Sylt. On the left, we observe the southern part
 
 ## Repository Links
 - [Active Learning Repository](https://github.com/autocoast/active-learning-sentinel-s2.git)
-- [Pre-labelling Repository](https://github.com/yourusername/pre-labelling-repo)
+- [Pre-labelling Repository](https://github.com/autocoast/pre-labelling-s2)
 - [Labelling Tool Repository](https://github.com/autocoast/remote-sensing-labelling-tool)
 
 ## Contact
