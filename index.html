@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Measuring coastal cliff erosion from free satellite data — AutoCoast</title>
+<meta name="description" content="How AutoCoast locates cliffs, tracks the coastline, and why precise cliff volumes need LiDAR — worked examples from Rügen (Jasmund & Kap Arkona).">
+<style>
+  :root{
+    --bg:#eef2f5; --paper:#ffffff; --ink:#12242f; --muted:#54697a;
+    --line:rgba(18,36,47,.12); --line-strong:rgba(18,36,47,.2);
+    --sea:#0e7490; --accent:#0b6a8f; --very:#c2410c; --good:#0f766e;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#0a141c;--paper:#0f1e29;--ink:#e8eff4;--muted:#93a7b4;--line:rgba(232,239,244,.13);--line-strong:rgba(232,239,244,.24);--sea:#38bdf8;--accent:#5fc7f0;--very:#fb923c;--good:#5eead4;}
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+  .site{border-bottom:1px solid var(--line);background:var(--paper)}
+  .site .in{max-width:1000px;margin:0 auto;padding:.9rem clamp(1rem,4vw,2rem);display:flex;align-items:center;gap:.7rem}
+  .site img{height:30px;width:auto;border-radius:5px}
+  .site .nm{font-family:var(--mono);font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);font-weight:600}
+  .site .sp{flex:1}
+  .site .lnk{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+  main{max-width:760px;margin:0 auto;padding:clamp(1.6rem,5vw,3.4rem) clamp(1.1rem,4vw,1.6rem) 4rem}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--sea);margin:0 0 .8rem}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(2rem,5.5vw,3rem);line-height:1.08;letter-spacing:-.015em;margin:0 0 .8rem;text-wrap:balance}
+  .dek{font-size:clamp(1.1rem,2.4vw,1.32rem);color:var(--muted);margin:0 0 1.4rem;line-height:1.5}
+  .byline{font-family:var(--mono);font-size:.74rem;letter-spacing:.05em;color:var(--muted);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:.7rem 0;margin:0 0 2rem;display:flex;gap:.9rem;flex-wrap:wrap}
+  h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.4rem,3.4vw,1.9rem);line-height:1.15;letter-spacing:-.01em;margin:2.4rem 0 .7rem;text-wrap:balance}
+  p{margin:0 0 1.1rem;font-size:clamp(1.02rem,2vw,1.12rem)}
+  strong{font-weight:650}
+  .lead::first-letter{font-family:var(--serif);float:left;font-size:3.1rem;line-height:.78;padding:.1rem .5rem .1rem 0;color:var(--sea)}
+  figure{margin:1.8rem 0;padding:0}
+  figure img{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:10px;background:#0a141c}
+  figcaption{font-size:.86rem;color:var(--muted);margin-top:.55rem;line-height:1.45}
+  figcaption b{color:var(--ink);font-weight:600}
+  .callout{border-left:3px solid var(--sea);background:var(--paper);border-radius:0 10px 10px 0;padding:.9rem 1.1rem;margin:1.6rem 0;font-size:1rem}
+  .callout.warn{border-color:var(--very)}
+  .callout .h{font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 .35rem}
+  ul{margin:0 0 1.2rem;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:.55rem}
+  ul li{position:relative;padding-left:1.4rem;color:var(--ink)}
+  ul li::before{content:"";position:absolute;left:.15rem;top:.62rem;width:.5rem;height:.5rem;background:var(--sea);border-radius:1px;transform:rotate(45deg)}
+  .num{font-variant-numeric:tabular-nums}
+  .footnote{margin-top:3rem;border-top:1px solid var(--line);padding-top:1.4rem;font-size:.92rem;color:var(--muted)}
+  .footnote a{color:var(--accent)}
+  .tag{display:inline-block;font-family:var(--mono);font-size:.66rem;letter-spacing:.05em;color:var(--good);border:1px solid var(--good);border-radius:999px;padding:.1rem .5rem;text-transform:uppercase}
+</style>
+</head>
+<body>
+  <header class="site"><div class="in">
+    <img src="./autocoast.png" alt="AutoCoast logo">
+    <span class="nm">AutoCoast</span>
+    <span class="sp"></span>
+    <a class="lnk" href="https://github.com/autocoast/home">GitHub ↗</a>
+  </div></header>
+
+  <main>
+    <p class="eyebrow">Field notes · Coastal change</p>
+    <h1>Measuring coastal cliff erosion from free satellite data</h1>
+    <p class="dek">How we locate cliffs, read the coastline, and why the precise numbers ultimately need LiDAR — with
+      worked examples from the chalk and till cliffs of Rügen.</p>
+    <div class="byline"><span>AutoCoast · Helmholtz-Zentrum Hereon</span><span>Baltic &amp; North Sea</span><span>July 2026</span></div>
+
+    <p class="lead">At AutoCoast we track how the North Sea and Baltic coasts have changed over the last four decades — and
+      where they are heading. Cliffs are one of the hardest cases: they are narrow, steep, and change slowly. This note
+      walks through a small, reproducible pipeline built entirely on <strong>free</strong> satellite and elevation data, and
+      is honest about where free data stops being enough.</p>
+
+    <h2>Why not radar?</h2>
+    <p>The obvious idea is Sentinel-1 radar interferometry (InSAR). We tried it and stepped back — on physics, not
+      convenience. InSAR measures <em>movement</em> (millimetres of ground shift), not <em>geometry</em> (how much rock is
+      gone). Worse, a steep cliff face is the pathological case for side-looking radar: it produces
+      <strong>layover and shadow</strong>, and an actual collapse <strong>destroys the radar coherence</strong> the method
+      depends on. So we build on elevation models and optical imagery instead.</p>
+
+    <h2>Step 1 — Where are the cliffs?</h2>
+    <p>A cliff is simply a <strong>steep slope right next to the sea</strong>. That is enough to find them automatically in a
+      free 30&nbsp;m global elevation model (Copernicus GLO-30): compute the slope, keep pixels that are steep, above sea
+      level, and within a couple of hundred metres of the water. No training data needed.</p>
+
+    <figure>
+      <img src="./assets/cliff-arkona.jpg" alt="Kap Arkona: cliff hotspots, elevation relief, and 1984 vs 2024 coastline">
+      <figcaption><b>Kap Arkona, Rügen — a known, actively eroding cliff coast.</b> Left: detected cliff hotspots (red) trace
+        the whole north-east cliff line. Middle: the elevation relief showing the cape plateau dropping to the sea. Right:
+        the 1984–90 (amber) and 2024 (blue) coastlines — they nearly coincide, because the retreat is smaller than a pixel.</figcaption>
+    </figure>
+
+    <h2>Step 2 — Reading the water line</h2>
+    <p>To follow the coast over time we extract the land–water boundary from each image. The classic index, NDWI, is easily
+      fooled here: bright, chalky, turbid water near a chalk cliff gets misread as land. Indices that use the
+      <strong>short-wave infrared</strong> (MNDWI, AWEI) are far more robust, because water absorbs SWIR whatever its colour.
+      Radar (Sentinel-1) ignores colour entirely, and a deep-learning classifier (Google Dynamic World) adds another
+      independent view.</p>
+
+    <figure>
+      <img src="./assets/water-methods.jpg" alt="Water line on Landsat-5, Landsat-8 and Sentinel-2, NDWI vs MNDWI">
+      <figcaption><b>The same coastline, extracted on each satellite's own image.</b> Landsat-5 (1984–90 median), Landsat-8
+        and Sentinel-2, with NDWI (orange) and MNDWI (green). Both hug the real coast on all three; MNDWI sits a touch tighter
+        at the bright chalk. Rightmost: the 34-year change, L5 → S2.</figcaption>
+    </figure>
+
+    <h2>Averaging beats a single scene</h2>
+    <p>Old Landsat scenes are hazy. A single 1985 image suggested the Königsstuhl coast had advanced <span class="num">~100&nbsp;m</span>
+      seaward — physically impossible for an eroding chalk cliff. Comparing <strong>multi-year medians</strong> instead
+      (1984–88 vs 2007–11) collapses that artefact to about <span class="num">−4&nbsp;m</span>. It was noise, not change.</p>
+
+    <figure>
+      <img src="./assets/change-multiyear.jpg" alt="Landsat-5 multi-year coastline change at Jasmund">
+      <figcaption><b>Jasmund, multi-year medians.</b> The early and late coastlines coincide along the cliff; the only real
+        marked change is the built-up <b>Sassnitz ferry port</b> — a good reminder to separate construction from erosion.</figcaption>
+    </figure>
+
+    <h2>A robust base layer: water frequency</h2>
+    <p>The most reliable coastline comes from asking, over <em>many</em> images, how often each pixel is water. Doing this on
+      12&nbsp;years of Sentinel-1 radar averages out wind, clouds and chalk artefacts, and — because radar is colour-blind —
+      there is no bright-chalk bulge.</p>
+
+    <figure>
+      <img src="./assets/water-frequency.jpg" alt="Sentinel-1 water-occurrence frequency at Jasmund">
+      <figcaption><b>Sentinel-1 water frequency (12 years).</b> Dark = always water, white = never; the red line is the 50&nbsp;%
+        coastline. Sharp, stable, and independent of the chalk.</figcaption>
+    </figure>
+
+    <h2>The honest limit — and where LiDAR comes in</h2>
+    <p>Across two well-known German cliff sites — Jasmund and Kap Arkona — the story is the same: the coastline moves only
+      about <span class="num">0.3&nbsp;m per year</span>, roughly <span class="num">10&nbsp;m</span> over three decades. That is
+      <strong>smaller than one Landsat or Sentinel-2 pixel</strong>. Free optical data is excellent for finding <em>where</em>
+      cliffs are and flagging large or built-up change, but it cannot resolve the slow, precise retreat rate.</p>
+    <p>For the actual geometry — how much material fell, how much volume was lost — we difference two high-resolution
+      <strong>LiDAR</strong> elevation models (1&nbsp;m) with careful co-registration and a detection limit. On a controlled
+      test with known ground truth, the pipeline recovered a buried crater's volume to <span class="num">100&nbsp;%</span>.</p>
+
+    <div class="callout">
+      <p class="h">In one line</p>
+      <p style="margin:0">Free optical + radar tells you <strong>where</strong> and <strong>roughly how fast</strong>; matched
+        1&nbsp;m LiDAR differencing tells you <strong>exactly how much</strong>. Together they scale from the whole coast down to
+        a single cliff.</p>
+    </div>
+
+    <h2>Takeaways</h2>
+    <ul>
+      <li>Cliffs can be located automatically from a free global elevation model — no labels needed.</li>
+      <li>Use an SWIR index (MNDWI/AWEI) or radar for the water line; plain NDWI fails on bright chalk water.</li>
+      <li>Always average over years — single old scenes fake tens of metres of change.</li>
+      <li>Slow cliff retreat is sub-pixel for 10–30&nbsp;m optical; precise volumes need 1&nbsp;m LiDAR differencing.</li>
+      <li><span class="tag">next</span> a fast-eroding demonstrator and pan-Baltic / North-Sea national-LiDAR harmonisation.</li>
+    </ul>
+
+    <div class="footnote">
+      <p>Part of <a href="https://github.com/autocoast/home">AutoCoast</a> — coastal change detection with remote sensing and
+        deep learning at Helmholtz-Zentrum Hereon. Data: Copernicus GLO-30, Sentinel-1/2, Landsat 5/8, Dynamic World, DGM1
+        Mecklenburg-Vorpommern (© GeoBasis-DE/M-V, CC BY). Questions &amp; suggestions:
+        <a href="mailto:david.pogorzelski@hereon.de">david.pogorzelski@hereon.de</a>.</p>
+    </div>
+  </main>
+</body>
+</html>
